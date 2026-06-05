@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YubiLab - Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --bg-primary: #1e1e1e; --bg-secondary: #252526; --bg-tertiary: #2d2d2d; --border-color: #3e3e42; --text-primary: #ccc; --text-secondary: #969696; --accent-blue: #0078d4; --accent-green: #4ec9b0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
+        .docs-header { background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+        .docs-header h1 { font-size: 20px; display: flex; align-items: center; gap: 8px; color: var(--accent-blue); }
+        .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text-primary); }
+        .btn-secondary { background: var(--bg-tertiary); border: 1px solid var(--border-color); }
+        .docs-container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        .docs-container h1 { color: var(--accent-blue); margin-bottom: 24px; }
+        .docs-container h2 { color: var(--accent-green); margin-top: 32px; margin-bottom: 12px; font-size: 20px; }
+        .docs-container h3 { color: var(--accent-blue); margin-top: 20px; margin-bottom: 8px; font-size: 16px; }
+        .docs-container p { line-height: 1.7; margin-bottom: 12px; color: var(--text-secondary); }
+        .docs-container ul, .docs-container ol { margin-left: 20px; margin-bottom: 12px; color: var(--text-secondary); }
+        .docs-container li { margin-bottom: 6px; line-height: 1.5; }
+        .docs-container code { background: var(--bg-tertiary); padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 13px; color: var(--accent-green); }
+        .docs-container pre { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; overflow-x: auto; margin-bottom: 16px; }
+        .docs-container pre code { background: none; padding: 0; color: var(--text-primary); }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 20px 0; }
+        .feature-item { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; }
+        .feature-item i { font-size: 20px; color: var(--accent-blue); margin-bottom: 8px; display: block; }
+        .feature-item h4 { margin-bottom: 4px; font-size: 14px; }
+        .feature-item p { font-size: 12px; margin-bottom: 0; }
+        .warning-box { background: rgba(215,186,125,0.1); border: 1px solid var(--accent-yellow); border-radius: 8px; padding: 16px; margin: 16px 0; }
+        .info-box { background: rgba(0,120,212,0.1); border: 1px solid var(--accent-blue); border-radius: 8px; padding: 16px; margin: 16px 0; }
+        :root { --accent-yellow: #d7ba7d; }
+    </style>
+</head>
+<body>
+    <div class="docs-header">
+        <h1><i class="fas fa-book"></i> YubiLab Documentation</h1>
+        <a href="/ide" class="btn btn-secondary"><i class="fas fa-code"></i> Open IDE</a>
+    </div>
+
+    <div class="docs-container">
+        <h1>YubiLab AI Agent - Complete Guide</h1>
+
+        <p>YubiLab is a fully autonomous AI software engineer, similar to Devin, Replit Agent, and z.ai. It can analyze codebases, plan tasks, write and edit code, run terminal commands, and verify its own work - all autonomously with real-time streaming.</p>
+
+        <div class="feature-grid">
+            <div class="feature-item">
+                <i class="fas fa-brain"></i>
+                <h4>Autonomous Agent</h4>
+                <p>Thinks, plans, and executes tasks independently</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-upload"></i>
+                <h4>Project Upload</h4>
+                <p>Supports zip, rar, tar, 7z archives</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-code"></i>
+                <h4>Code Editor</h4>
+                <p>VS Code-style Monaco Editor with syntax highlighting</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-terminal"></i>
+                <h4>Terminal</h4>
+                <p>Execute commands and see results in real-time</p>
+            </div>
+        </div>
+
+        <h2>Getting Started</h2>
+        <h3>1. Create an Account</h3>
+        <p>Navigate to the registration page and create your account. Free accounts get 3 AI prompts per day. For unlimited access, upgrade to Pro for 1,200 BDT/month via bKash.</p>
+
+        <h3>2. Upload a Project</h3>
+        <p>Drag and drop your project archive (zip, rar, tar, 7z) into the upload zone in the AI Agent panel. The agent will automatically extract and analyze the project structure, creating a detailed context map of all files and their relationships.</p>
+
+        <h3>3. Describe Your Task</h3>
+        <p>Type your task in the input area. Be specific about what you want the agent to do. Examples:</p>
+        <ul>
+            <li>Fix the login bug in auth.py - users can't login with correct password</li>
+            <li>Add user authentication with JWT to the Flask API</li>
+            <li>Refactor the database layer to use SQLAlchemy ORM</li>
+            <li>Add unit tests for all API endpoints</li>
+            <li>Convert this JavaScript project to TypeScript</li>
+        </ul>
+
+        <h3>4. Watch the Agent Work</h3>
+        <p>Click "Start Agent" and watch in real-time as the AI thinks, plans, and executes. The activity feed shows everything the agent is doing - its reasoning, the files it's editing, commands it's running, and verification results.</p>
+
+        <h2>AI Agent Modes</h2>
+        <h3>Autonomous Mode (Auto)</h3>
+        <p>Like Devin - the agent works independently. It analyzes the project, creates a plan, executes each step, and verifies its work. You can watch the real-time activity feed and intervene via chat if needed.</p>
+
+        <h3>Assisted Mode</h3>
+        <p>The agent suggests actions but waits for your approval before executing. Good for when you want more control over what changes are made to your codebase.</p>
+
+        <h2>Context Window</h2>
+        <div class="info-box">
+            <strong>Context Limit:</strong> YubiLab's AI agent has a context window of 8,100 tokens. If your project exceeds this limit, the agent automatically processes it part by part, ensuring 100% coverage of your codebase.
+        </div>
+        <p>The agent tracks which parts of the codebase it has already processed and which remain. It builds a cumulative understanding of the project across all parts, so even large codebases get thorough analysis.</p>
+
+        <h2>Pricing</h2>
+        <p><strong>Free Plan:</strong> 3 AI prompts per day, basic IDE, terminal access, file upload.</p>
+        <p><strong>Pro Plan (1,200 BDT/month):</strong> Unlimited AI prompts, full autonomous agent, APK builds, priority support.</p>
+        <p>Payment is via bKash to number <code>01849691859</code>. After sending payment, enter the Transaction ID in the payment page for verification.</p>
+
+        <h2>Keyboard Shortcuts</h2>
+        <ul>
+            <li><code>Ctrl+S</code> - Save current file</li>
+            <li><code>Ctrl+P</code> - Quick file open</li>
+            <li><code>Enter</code> - Execute terminal command</li>
+            <li><code>Enter</code> - Send chat message</li>
+        </ul>
+
+        <h2>API Endpoints</h2>
+        <h3>Authentication</h3>
+        <pre><code>POST /api/auth/register  - Register new user
+POST /api/auth/login     - Login
+GET  /api/auth/me        - Get current user</code></pre>
+
+        <h3>AI Agent</h3>
+        <pre><code>POST /api/agent/sessions              - Create session
+POST /api/agent/sessions/:id/chat     - Chat with agent
+GET  /api/agent/sessions/:id/activity - Get activity log</code></pre>
+
+        <h3>AI Chat</h3>
+        <pre><code>POST /api/ai/chat - Direct AI chat (no agent)</code></pre>
+
+        <h3>Terminal</h3>
+        <pre><code>POST /api/terminal/sessions            - Create terminal
+POST /api/terminal/sessions/:id/execute - Run command</code></pre>
+
+        <h2>Support</h2>
+        <p>For issues or questions, contact the YubiLab team or use the AI chat within the IDE for instant help.</p>
+    </div>
+</body>
+</html>

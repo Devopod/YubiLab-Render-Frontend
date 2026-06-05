@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YubiLab — Pricing</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+        h1 { text-align: center; color: #e91e63; margin-bottom: 8px; font-size: 36px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 40px; }
+        .tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+        .tier { background: #1a1a2e; border-radius: 16px; padding: 32px; border: 2px solid #333; text-align: center; }
+        .tier.popular { border-color: #e91e63; position: relative; }
+        .tier.popular::before { content: 'POPULAR'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+                                background: #e91e63; color: white; padding: 4px 16px; border-radius: 20px; font-size: 12px; }
+        .tier h2 { color: #e91e63; margin-bottom: 8px; }
+        .tier .price { font-size: 48px; font-weight: bold; color: white; }
+        .tier .period { color: #888; margin-bottom: 24px; }
+        .tier ul { list-style: none; margin: 24px 0; text-align: left; }
+        .tier ul li { padding: 8px 0; color: #ccc; border-bottom: 1px solid #222; }
+        .tier ul li::before { content: '✓ '; color: #e91e63; font-weight: bold; }
+        .tier .btn { display: inline-block; width: 100%; padding: 14px; background: #e91e63; color: white; border: none;
+                     border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; text-decoration: none; text-align: center; }
+        .tier .btn:hover { background: #c2185b; }
+        .tier .btn-free { background: #333; }
+        .back-link { display: block; text-align: center; margin-top: 32px; color: #e91e63; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Plans & Pricing</h1>
+        <p class="subtitle">Pay via bKash. Upgrade instantly on admin approval.</p>
+
+        <div class="tiers">
+            <div class="tier">
+                <h2>Free</h2>
+                <div class="price">৳0</div>
+                <div class="period">forever</div>
+                <ul>
+                    <li>3 AI prompts/day</li>
+                    <li>1 APK build/day</li>
+                    <li>1 sub-agent</li>
+                    <li>30 min terminal/day</li>
+                    <li>5 MB upload</li>
+                    <li>5 RAG documents</li>
+                </ul>
+                <a href="/editor" class="btn btn-free">Current Plan</a>
+            </div>
+
+            <div class="tier popular">
+                <h2>Pro</h2>
+                <div class="price">৳1,200</div>
+                <div class="period">/month</div>
+                <ul>
+                    <li>500 AI prompts/day</li>
+                    <li>30 APK builds/day</li>
+                    <li>5 sub-agents</li>
+                    <li>8 hours terminal/day</li>
+                    <li>50 MB upload</li>
+                    <li>100 RAG documents</li>
+                </ul>
+                <a href="/bkash" class="btn">Upgrade via bKash</a>
+            </div>
+
+            <div class="tier">
+                <h2>Enterprise</h2>
+                <div class="price">৳5,000</div>
+                <div class="period">/month</div>
+                <ul>
+                    <li>Unlimited AI prompts</li>
+                    <li>Unlimited APK builds</li>
+                    <li>10 sub-agents</li>
+                    <li>24 hours terminal</li>
+                    <li>500 MB upload</li>
+                    <li>Unlimited RAG documents</li>
+                </ul>
+                <a href="/bkash" class="btn">Upgrade via bKash</a>
+            </div>
+        </div>
+
+        <a href="/editor" class="back-link">Back to IDE</a>
+    </div>
+</body>
+</html>

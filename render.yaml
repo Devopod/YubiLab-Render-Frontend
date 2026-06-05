@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: yubilab-frontend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn flask_backend.app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    envVars:
+      - key: SECRET_KEY
+        value: yubilab-flask-secret-2024-production
+      - key: JWT_SECRET
+        value: yubilab-secure-jwt-2024-production
+      - key: WORKER_URL
+        value: http://localhost:8000
+      - key: WORKER_API_KEY
+        value: yubilab-worker-api-key-2024
+      - key: GROQ_API_KEY
+        value: YOUR_GROQ_API_KEY_1
+      - key: GROQ_API_KEY_2
+        value: YOUR_GROQ_API_KEY_2
+      - key: GROQ_DEFAULT_MODEL
+        value: openai/gpt-oss-120b
+      - key: BKASH_NUMBER
+        value: "01849691859"
+      - key: BKASH_AMOUNT
+        value: "1200"
+      - key: BKASH_ENTERPRISE_AMOUNT
+        value: "5000"
+      - key: FREE_AI_PROMPTS_DAILY
+        value: "3"
+      - key: FREE_APK_BUILDS_DAILY
+        value: "1"

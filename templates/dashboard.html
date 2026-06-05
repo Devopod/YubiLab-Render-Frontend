@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YubiLab - Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --bg-primary: #1e1e1e; --bg-secondary: #252526; --bg-tertiary: #2d2d2d; --bg-hover: #3e3e42; --border-color: #3e3e42; --text-primary: #ccc; --text-secondary: #969696; --accent-blue: #0078d4; --accent-green: #4ec9b0; --accent-purple: #c586c0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg-primary); color: var(--text-primary); }
+        .dashboard-header { background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+        .dashboard-header h1 { font-size: 20px; display: flex; align-items: center; gap: 8px; color: var(--accent-blue); }
+        .header-actions { display: flex; gap: 8px; }
+        .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px; text-decoration: none; }
+        .btn-primary { background: var(--accent-blue); color: white; }
+        .btn-primary:hover { background: #1a8fe8; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--bg-hover); }
+        .dashboard-content { padding: 24px; max-width: 1200px; margin: 0 auto; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; }
+        .stat-card .stat-value { font-size: 28px; font-weight: 700; color: var(--accent-blue); }
+        .stat-card .stat-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        .section-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+        .section-card h2 { font-size: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .plan-info { display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--bg-tertiary); border-radius: 8px; margin-bottom: 16px; }
+        .plan-badge { background: var(--accent-purple); color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: 600; }
+        .plan-badge.pro { background: var(--accent-green); }
+        .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        .quick-action { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; text-decoration: none; color: var(--text-primary); }
+        .quick-action:hover { border-color: var(--accent-blue); background: var(--bg-hover); }
+        .quick-action i { font-size: 24px; color: var(--accent-blue); margin-bottom: 8px; display: block; }
+        .quick-action h3 { font-size: 14px; margin-bottom: 4px; }
+        .quick-action p { font-size: 12px; color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <h1><i class="fas fa-robot"></i> YubiLab Dashboard</h1>
+        <div class="header-actions">
+            <a href="/ide" class="btn btn-primary"><i class="fas fa-code"></i> Open IDE</a>
+            <a href="/pricing" class="btn btn-secondary"><i class="fas fa-crown"></i> Upgrade</a>
+        </div>
+    </div>
+
+    <div class="dashboard-content">
+        <div class="plan-info">
+            <span class="plan-badge {{ 'pro' if user.plan == 'pro' else '' }}">{{ user.plan | upper }}</span>
+            <span>Plan - {{ 'Unlimited AI prompts' if user.plan != 'free' else '3 AI prompts/day' }}</span>
+            {% if user.plan == 'free' %}
+            <a href="/payment" class="btn btn-primary" style="margin-left:auto;"><i class="fas fa-bolt"></i> Upgrade to Pro</a>
+            {% endif %}
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.session_count | default(0) }}</div>
+                <div class="stat-label">Agent Sessions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.ai_prompts_used | default(0) }}</div>
+                <div class="stat-label">AI Prompts Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ 'Unlimited' if user.plan != 'free' else '3' }}</div>
+                <div class="stat-label">Daily AI Limit</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ user.plan | upper }}</div>
+                <div class="stat-label">Current Plan</div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+            <div class="quick-actions">
+                <a href="/ide" class="quick-action">
+                    <i class="fas fa-brain"></i>
+                    <h3>AI Agent</h3>
+                    <p>Start an autonomous agent session</p>
+                </a>
+                <a href="/ide" class="quick-action">
+                    <i class="fas fa-upload"></i>
+                    <h3>Upload Project</h3>
+                    <p>Upload a project for AI to work on</p>
+                </a>
+                <a href="/ide" class="quick-action">
+                    <i class="fas fa-terminal"></i>
+                    <h3>Terminal</h3>
+                    <p>Open a terminal session</p>
+                </a>
+                <a href="/docs" class="quick-action">
+                    <i class="fas fa-book"></i>
+                    <h3>Documentation</h3>
+                    <p>Learn how to use YubiLab</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

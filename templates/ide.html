@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YubiLab - AI Agent IDE</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ide.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/agent.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/editor/editor.main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/xterm.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="yubilab-ide">
+
+    <!-- ===== TOP BAR (Devin-style) ===== -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo">
+                <div class="logo-icon">Y</div>
+                <span>YubiLab</span>
+            </div>
+            <div class="topbar-tabs">
+                <button class="topbar-tab active" id="tab-sessions" onclick="switchTopTab('sessions')">
+                    <i class="fas fa-comments"></i> Sessions
+                </button>
+                <button class="topbar-tab" id="tab-code" onclick="switchTopTab('code')">
+                    <i class="fas fa-code"></i> Code
+                </button>
+            </div>
+        </div>
+        <div class="topbar-center">
+            <div class="agent-status" id="agent-status">
+                <span class="status-dot idle"></span>
+                <span id="agent-status-text">Ready</span>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <span class="plan-badge" id="plan-badge">{{ user.plan | upper }}</span>
+            <a href="/dashboard" class="topbar-icon" title="Dashboard"><i class="fas fa-gauge"></i></a>
+            <a href="/logout" class="topbar-icon" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </div>
+
+    <!-- ===== MAIN 3-PANEL LAYOUT (Devin-style) ===== -->
+    <div class="main-layout">
+
+        <!-- LEFT PANEL: Chat/Agent (Devin left panel) -->
+        <div class="left-panel" id="left-panel">
+            <div class="left-panel-inner">
+                <!-- Session Header -->
+                <div class="session-header">
+                    <div class="session-title" id="session-title">New Session</div>
+                    <div class="session-actions">
+                        <button onclick="newSession()" class="session-btn" title="New Session"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div class="chat-area" id="chat-area">
+                    <div class="chat-welcome" id="chat-welcome">
+                        <div class="welcome-icon"><i class="fas fa-robot"></i></div>
+                        <h2>YubiLab AI Agent</h2>
+                        <p>Fully autonomous AI software engineer</p>
+                        <div class="quick-prompts">
+                            <button onclick="quickPrompt('Build a Flask web app')">Build a Flask web app</button>
+                            <button onclick="quickPrompt('Fix bugs in my code')">Fix bugs in my code</button>
+                            <button onclick="quickPrompt('Add authentication')">Add authentication</button>
+                            <button onclick="quickPrompt('Write unit tests')">Write unit tests</button>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chat-messages"></div>
+                </div>
+
+                <!-- Chat Input (Devin-style bottom input) -->
+                <div class="chat-input-area">
+                    <!-- File Upload Row -->
+                    <div class="upload-row" id="upload-row" style="display:none;">
+                        <div class="uploaded-items" id="uploaded-items"></div>
+                    </div>
+                    <div class="chat-input-row">
+                        <button class="attach-btn" onclick="document.getElementById('file-upload').click()" title="Attach file">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <input type="file" id="file-upload" accept=".zip,.rar,.tar,.gz,.7z,.tgz,.bz2,.xz,.py,.js,.ts,.html,.css,.json" multiple hidden>
+                        <textarea id="chat-input" placeholder="Ask the agent to build features, fix bugs, or work on your code..." rows="1" onkeydown="handleChatKeydown(event)"></textarea>
+                        <button class="send-btn" id="send-btn" onclick="sendMessage()">
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                    </div>
+                    <div class="input-footer">
+                        <span class="agent-mode-label" id="agent-mode-label">Autonomous</span>
+                        <span class="context-label" id="context-label">Context: 0/4096</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resize Handle Left -->
+        <div class="resize-handle vertical" id="resize-left"></div>
+
+        <!-- CENTER PANEL: Code Editor + Terminal -->
+        <div class="center-panel" id="center-panel">
+            <!-- Code/Editor Tabs -->
+            <div class="editor-tabs-bar">
+                <div class="editor-tabs" id="editor-tabs">
+                    <div class="editor-tab active" data-file="welcome">
+                        <span>welcome.md</span>
+                        <button class="tab-close" onclick="closeTab('welcome')">&times;</button>
+                    </div>
+                </div>
+                <div class="editor-tab-actions">
+                    <button onclick="toggleTerminal()" class="tab-action-btn" title="Toggle Terminal"><i class="fas fa-terminal"></i></button>
+                </div>
+            </div>
+
+            <!-- Monaco Editor -->
+            <div class="editor-container" id="editor-container">
+                <div id="monaco-editor"></div>
+                <!-- Welcome Screen -->
+                <div class="welcome-content" id="welcome-content">
+                    <div class="welcome-inner">
+                        <div class="welcome-logo">Y</div>
+                        <h1>YubiLab AI Agent</h1>
+                        <p class="subtitle">Fully Autonomous Software Engineer</p>
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <i class="fas fa-brain"></i>
+                                <h4>Autonomous Agent</h4>
+                                <p>Thinks, plans, and executes independently</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-upload"></i>
+                                <h4>Project Upload</h4>
+                                <p>Upload zip, rar, tar, 7z projects</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-code"></i>
+                                <h4>Real-time Coding</h4>
+                                <p>Watch AI write and edit code live</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-terminal"></i>
+                                <h4>Terminal</h4>
+                                <p>Run commands and test code</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terminal Section (Resizable) -->
+            <div class="resize-handle horizontal" id="resize-terminal"></div>
+            <div class="terminal-section" id="terminal-section">
+                <div class="terminal-header">
+                    <div class="terminal-tabs">
+                        <button class="term-tab active" onclick="switchTermTab('agent')"><i class="fas fa-robot"></i> Agent</button>
+                        <button class="term-tab" onclick="switchTermTab('user')"><i class="fas fa-terminal"></i> Terminal</button>
+                    </div>
+                    <div class="terminal-actions">
+                        <button onclick="clearTerminal()" class="term-action" title="Clear"><i class="fas fa-eraser"></i></button>
+                        <button onclick="toggleTerminal()" class="term-action" title="Minimize"><i class="fas fa-chevron-down"></i></button>
+                    </div>
+                </div>
+                <div class="terminal-body" id="terminal-body">
+                    <div id="agent-terminal" class="term-pane active">
+                        <div class="term-output" id="agent-term-output"></div>
+                    </div>
+                    <div id="user-terminal" class="term-pane">
+                        <div id="xterm-container"></div>
+                    </div>
+                </div>
+                <div class="terminal-input-bar">
+                    <span class="prompt-sign">$</span>
+                    <input type="text" id="terminal-input" placeholder="Type a command..." onkeydown="if(event.key==='Enter')runTerminalCmd()">
+                    <button onclick="runTerminalCmd()" class="term-run-btn"><i class="fas fa-play"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resize Handle Right -->
+        <div class="resize-handle vertical" id="resize-right"></div>
+
+        <!-- RIGHT PANEL: Preview/Workspace -->
+        <div class="right-panel" id="right-panel">
+            <div class="right-panel-inner">
+                <div class="right-tabs">
+                    <button class="right-tab active" onclick="switchRightTab('workspace')"><i class="fas fa-folder-tree"></i> Files</button>
+                    <button class="right-tab" onclick="switchRightTab('activity')"><i class="fas fa-list-check"></i> Activity</button>
+                    <button class="right-tab" onclick="switchRightTab('ai')"><i class="fas fa-wand-magic-sparkles"></i> AI</button>
+                </div>
+
+                <!-- Files Panel -->
+                <div class="right-content" id="right-workspace">
+                    <div class="file-tree" id="file-tree">
+                        <div class="empty-state">
+                            <i class="fas fa-folder-open"></i>
+                            <p>No project loaded. Upload a project to get started.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Panel -->
+                <div class="right-content" id="right-activity" style="display:none;">
+                    <div class="activity-feed" id="activity-feed">
+                        <div class="empty-state">
+                            <i class="fas fa-list-check"></i>
+                            <p>Agent activity will appear here</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Assistant Panel -->
+                <div class="right-content" id="right-ai" style="display:none;">
+                    <div class="ai-messages" id="ai-messages">
+                        <div class="ai-msg system">
+                            <div class="ai-msg-avatar"><i class="fas fa-robot"></i></div>
+                            <div class="ai-msg-content">
+                                <p>Hi! I'm your AI assistant. Ask me anything about code.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ai-input-area">
+                        <input type="text" id="ai-input" placeholder="Ask AI..." onkeydown="if(event.key==='Enter')askAI()">
+                        <button onclick="askAI()"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STATUS BAR ===== -->
+    <div class="statusbar">
+        <div class="status-left">
+            <span class="status-item"><i class="fas fa-code-branch"></i> main</span>
+            <span class="status-item" id="status-errors"><i class="fas fa-times-circle"></i> 0</span>
+        </div>
+        <div class="status-center">
+            <span class="status-item" id="agent-progress"></span>
+        </div>
+        <div class="status-right">
+            <span class="status-item" id="status-cursor">Ln 1, Col 1</span>
+            <span class="status-item" id="status-language">Markdown</span>
+            <span class="status-item">UTF-8</span>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay" style="display:none;">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p id="loading-message">Agent is working...</p>
+            <div class="progress-bar"><div class="progress-fill" id="agent-progress-bar"></div></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/xterm.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm-addon-fit/0.8.0/xterm-addon-fit.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/terminal.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/agent.js') }}"></script>
+</body>
+</html>

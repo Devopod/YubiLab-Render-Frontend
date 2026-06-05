@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YubiLab - bKash Payment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --bg-primary: #1e1e1e; --bg-secondary: #252526; --bg-tertiary: #2d2d2d; --border-color: #3e3e42; --text-primary: #ccc; --text-secondary: #969696; --accent-blue: #0078d4; --accent-green: #4ec9b0; --accent-red: #f44747; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .payment-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 32px; width: 480px; max-width: 90vw; }
+        .payment-card h1 { text-align: center; margin-bottom: 24px; font-size: 22px; }
+        .bkash-info { background: rgba(226,19,110,0.08); border: 1px solid #e2136e; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .bkash-info h3 { color: #e2136e; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .bkash-number { font-size: 28px; font-weight: 700; color: #e2136e; text-align: center; margin: 8px 0; letter-spacing: 2px; }
+        .bkash-amount { font-size: 22px; text-align: center; color: var(--text-primary); font-weight: 600; }
+        .bkash-amount span { color: var(--accent-green); }
+        .steps { margin-bottom: 20px; }
+        .step { padding: 12px 16px; border-left: 3px solid var(--border-color); margin-bottom: 4px; font-size: 13px; color: var(--text-secondary); }
+        .step.active { border-left-color: var(--accent-blue); color: var(--text-primary); }
+        .step strong { color: var(--text-primary); }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--text-secondary); }
+        .form-group input { width: 100%; padding: 10px 12px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 6px; font-size: 14px; color: var(--text-primary); outline: none; }
+        .form-group input:focus { border-color: var(--accent-blue); }
+        .btn { padding: 12px 24px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-primary { background: var(--accent-blue); color: white; }
+        .btn-primary:hover { background: #1a8fe8; }
+        .btn-primary:disabled { background: #555; cursor: not-allowed; }
+        .success-msg { display: none; text-align: center; padding: 20px; }
+        .success-msg i { font-size: 48px; color: var(--accent-green); margin-bottom: 12px; }
+        .success-msg h2 { color: var(--accent-green); margin-bottom: 8px; }
+        .error-msg { color: var(--accent-red); font-size: 13px; text-align: center; margin-top: 8px; display: none; }
+        .nav { text-align: center; margin-bottom: 20px; }
+        .nav a { color: var(--accent-blue); text-decoration: none; margin: 0 8px; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="payment-card">
+        <div class="nav">
+            <a href="/pricing"><i class="fas fa-arrow-left"></i> Back to Pricing</a>
+            <a href="/ide"><i class="fas fa-code"></i> IDE</a>
+        </div>
+
+        <h1><i class="fas fa-mobile-alt"></i> bKash Payment</h1>
+
+        <div id="payment-form">
+            <div class="bkash-info">
+                <h3><i class="fas fa-info-circle"></i> Payment Details</h3>
+                <p style="text-align:center; color: var(--text-secondary); margin-bottom: 8px;">Send bKash payment to:</p>
+                <div class="bkash-number">01849691859</div>
+                <div class="bkash-amount">Amount: <span>1,200 BDT</span>/month</div>
+            </div>
+
+            <div class="steps">
+                <div class="step active"><strong>Step 1:</strong> Open bKash app on your phone</div>
+                <div class="step active"><strong>Step 2:</strong> Send 1,200 BDT to 01849691859</div>
+                <div class="step active"><strong>Step 3:</strong> Copy the Transaction ID (TrxID)</div>
+                <div class="step"><strong>Step 4:</strong> Enter TrxID below to verify</div>
+            </div>
+
+            <div class="form-group">
+                <label>bKash Number (you sent from)</label>
+                <input type="text" id="bkash-number" placeholder="01XXXXXXXXX" required>
+            </div>
+
+            <div class="form-group">
+                <label>Transaction ID (TrxID)</label>
+                <input type="text" id="trxid" placeholder="Enter TrxID from bKash" required>
+            </div>
+
+            <button class="btn btn-primary" id="verify-btn" onclick="verifyPayment()">
+                <i class="fas fa-check-circle"></i> Verify Payment
+            </button>
+
+            <div class="error-msg" id="error-msg"></div>
+        </div>
+
+        <div class="success-msg" id="success-msg">
+            <i class="fas fa-check-circle"></i>
+            <h2>Payment Verified!</h2>
+            <p style="color: var(--text-secondary);">Your account has been upgraded to Pro. You now have unlimited AI access.</p>
+            <a href="/ide" class="btn btn-primary" style="margin-top: 16px; width: 100%;"><i class="fas fa-code"></i> Go to IDE</a>
+        </div>
+    </div>
+
+    <script>
+    async function verifyPayment() {
+        const bkashNumber = document.getElementById('bkash-number').value.trim();
+        const trxid = document.getElementById('trxid').value.trim();
+        const errorEl = document.getElementById('error-msg');
+        const btn = document.getElementById('verify-btn');
+
+        if (!trxid) {
+            errorEl.textContent = 'Transaction ID is required';
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+        errorEl.style.display = 'none';
+
+        try {
+            const resp = await fetch('/api/payment/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bkash_number: bkashNumber, trxid }),
+            });
+            const data = await resp.json();
+
+            if (data.success) {
+                document.getElementById('payment-form').style.display = 'none';
+                document.getElementById('success-msg').style.display = 'block';
+            } else {
+                errorEl.textContent = data.error || data.message || 'Verification failed';
+                errorEl.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Verify Payment';
+            }
+        } catch (e) {
+            errorEl.textContent = 'Connection error. Please try again.';
+            errorEl.style.display = 'block';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> Verify Payment';
+        }
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YubiLab - Pricing</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --bg-primary: #1e1e1e; --bg-secondary: #252526; --bg-tertiary: #2d2d2d; --border-color: #3e3e42; --text-primary: #ccc; --text-secondary: #969696; --accent-blue: #0078d4; --accent-green: #4ec9b0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; padding: 40px 20px; }
+        .pricing-header { text-align: center; margin-bottom: 40px; }
+        .pricing-header h1 { font-size: 32px; color: var(--accent-blue); margin-bottom: 8px; }
+        .pricing-header p { color: var(--text-secondary); font-size: 16px; }
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 800px; margin: 0 auto; }
+        .pricing-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 32px; text-align: center; }
+        .pricing-card.featured { border-color: var(--accent-blue); box-shadow: 0 0 30px rgba(0,120,212,0.2); }
+        .pricing-card h2 { font-size: 24px; margin-bottom: 8px; }
+        .pricing-card .price { font-size: 36px; font-weight: 700; color: var(--accent-blue); margin: 16px 0; }
+        .pricing-card .price span { font-size: 14px; color: var(--text-secondary); }
+        .pricing-card ul { list-style: none; text-align: left; margin: 24px 0; }
+        .pricing-card li { padding: 8px 0; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px; font-size: 14px; }
+        .pricing-card li i { color: var(--accent-green); }
+        .btn { padding: 12px 24px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+        .btn-primary { background: var(--accent-blue); color: white; }
+        .btn-primary:hover { background: #1a8fe8; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .nav { text-align: center; margin-bottom: 20px; }
+        .nav a { color: var(--accent-blue); text-decoration: none; margin: 0 12px; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/ide"><i class="fas fa-code"></i> IDE</a>
+        <a href="/dashboard"><i class="fas fa-gauge"></i> Dashboard</a>
+    </div>
+
+    <div class="pricing-header">
+        <h1><i class="fas fa-robot"></i> YubiLab Pricing</h1>
+        <p>Choose the plan that fits your development needs</p>
+    </div>
+
+    <div class="pricing-grid">
+        <div class="pricing-card">
+            <h2>Free</h2>
+            <div class="price">0 <span>BDT/month</span></div>
+            <ul>
+                <li><i class="fas fa-check"></i> 3 AI prompts per day</li>
+                <li><i class="fas fa-check"></i> Basic code editor</li>
+                <li><i class="fas fa-check"></i> Terminal access</li>
+                <li><i class="fas fa-check"></i> File upload & projects</li>
+                <li><i class="fas fa-check"></i> AI chat assistance</li>
+                <li><i class="fas fa-times" style="color:#f44747"></i> Autonomous agent</li>
+                <li><i class="fas fa-times" style="color:#f44747"></i> APK builds</li>
+            </ul>
+            {% if user and user.plan == 'free' %}
+            <button class="btn btn-secondary" disabled>Current Plan</button>
+            {% else %}
+            <a href="/register" class="btn btn-secondary">Get Started</a>
+            {% endif %}
+        </div>
+
+        <div class="pricing-card featured">
+            <h2>Pro</h2>
+            <div class="price">1,200 <span>BDT/month</span></div>
+            <ul>
+                <li><i class="fas fa-check"></i> Unlimited AI prompts</li>
+                <li><i class="fas fa-check"></i> Full autonomous AI agent</li>
+                <li><i class="fas fa-check"></i> Advanced code editor</li>
+                <li><i class="fas fa-check"></i> Terminal with AI</li>
+                <li><i class="fas fa-check"></i> Project upload (all formats)</li>
+                <li><i class="fas fa-check"></i> Part-by-part processing</li>
+                <li><i class="fas fa-check"></i> APK builds (1/day)</li>
+                <li><i class="fas fa-check"></i> Priority support</li>
+            </ul>
+            {% if user and user.plan == 'pro' %}
+            <button class="btn btn-primary" disabled>Current Plan</button>
+            {% else %}
+            <a href="/payment" class="btn btn-primary"><i class="fas fa-bolt"></i> Upgrade Now</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

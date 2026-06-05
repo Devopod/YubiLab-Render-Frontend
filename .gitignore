@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+*.db
+venv/
+.venv/
+uploads/bkash_screenshots/
+*.egg-info/
+dist/
+build/
+
+.env

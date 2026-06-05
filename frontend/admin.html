@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YubiLab — Admin Panel</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        h1 { color: #e91e63; margin-bottom: 24px; }
+        .nav { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+        .nav button { padding: 10px 20px; background: #1a1a2e; border: 1px solid #333; color: #ccc;
+                      border-radius: 8px; cursor: pointer; font-size: 14px; }
+        .nav button.active { background: #e91e63; color: white; border-color: #e91e63; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .stat-card { background: #1a1a2e; border-radius: 12px; padding: 24px; text-align: center; border: 1px solid #333; }
+        .stat-card .value { font-size: 36px; font-weight: bold; color: #e91e63; }
+        .stat-card .label { color: #888; margin-top: 4px; font-size: 14px; }
+        .section { display: none; }
+        .section.active { display: block; }
+        table { width: 100%; border-collapse: collapse; background: #1a1a2e; border-radius: 10px; overflow: hidden; }
+        th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #222; }
+        th { background: #0f0f1a; color: #e91e63; }
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+        .badge-pending { background: #e65100; color: white; }
+        .badge-approved { background: #2e7d32; color: white; }
+        .badge-rejected { background: #c62828; color: white; }
+        .btn { padding: 6px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; margin: 2px; }
+        .btn-approve { background: #2e7d32; color: white; }
+        .btn-reject { background: #c62828; color: white; }
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+        .search-bar { width: 100%; padding: 12px 16px; background: #0a0a1a; border: 1px solid #333;
+                      border-radius: 8px; color: white; font-size: 14px; margin-bottom: 16px; }
+        .search-bar:focus { border-color: #e91e63; outline: none; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                        background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: #1a1a2e; padding: 24px; border-radius: 16px; max-width: 500px; width: 90%; }
+        .modal img { max-width: 100%; border-radius: 8px; }
+        .back-link { color: #e91e63; text-decoration: none; display: inline-block; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/editor" class="back-link">← Back to IDE</a>
+        <h1>Admin Panel</h1>
+
+        <div class="stats" id="statsGrid"></div>
+
+        <div class="nav">
+            <button class="active" onclick="showSection('deposits', this)">Deposits</button>
+            <button onclick="showSection('users', this)">Users</button>
+            <button onclick="showSection('solveLogs', this)">Solve Logs</button>
+            <button onclick="showSection('settings', this)">Settings</button>
+        </div>
+
+        <!-- Deposits Section -->
+        <div class="section active" id="depositsSection">
+            <div class="nav" style="margin-bottom:16px">
+                <button class="active" onclick="loadDeposits('pending', this)">Pending</button>
+                <button onclick="loadDeposits('approved', this)">Approved</button>
+                <button onclick="loadDeposits('rejected', this)">Rejected</button>
+                <button onclick="loadDeposits('all', this)">All</button>
+            </div>
+            <table id="depositsTable">
+                <thead><tr><th>User</th><th>Amount</th><th>TrxID</th><th>Tier</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+                <tbody id="depositsBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Users Section -->
+        <div class="section" id="usersSection">
+            <input class="search-bar" placeholder="Search users..." oninput="searchUsers(this.value)">
+            <table>
+                <thead><tr><th>ID</th><th>Username</th><th>Email</th><th>Tier</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="usersBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Solve Logs Section -->
+        <div class="section" id="solveLogsSection">
+            <input class="search-bar" id="workspaceFilter" placeholder="Filter by workspace_id...">
+            <button class="btn btn-approve" onclick="loadSolveLogs()" style="margin-bottom:12px">Load Logs</button>
+            <table>
+                <thead><tr><th>Time</th><th>Workspace</th><th>Approach</th><th>Success</th><th>Error</th></tr></thead>
+                <tbody id="solveLogsBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="section" id="settingsSection">
+            <div id="settingsContent"></div>
+        </div>
+    </div>
+
+    <!-- Screenshot Modal -->
+    <div class="modal-overlay" id="screenshotModal" onclick="this.classList.remove('show')">
+        <div class="modal" onclick="event.stopPropagation()">
+            <img id="screenshotImg" src="">
+            <button class="btn btn-reject" style="margin-top:12px;width:100%" onclick="document.getElementById('screenshotModal').classList.remove('show')">Close</button>
+        </div>
+    </div>
+
+    <script>
+    const token = localStorage.getItem('token');
+    const API = '/api';
+
+    async function apiFetch(path, opts = {}) {
+        opts.headers = { ...opts.headers, 'Authorization': `Bearer ${token}` };
+        if (opts.body && typeof opts.body === 'object') {
+            opts.headers['Content-Type'] = 'application/json';
+            opts.body = JSON.stringify(opts.body);
+        }
+        const resp = await fetch(API + path, opts);
+        return resp.json();
+    }
+
+    function showSection(name, btn) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(name + 'Section').classList.add('active');
+        btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    // Dashboard Stats
+    async function loadDashboard() {
+        const data = await apiFetch('/admin/dashboard');
+        document.getElementById('statsGrid').innerHTML = `
+            <div class="stat-card"><div class="value">${data.total_users || 0}</div><div class="label">Total Users</div></div>
+            <div class="stat-card"><div class="value">${data.pro_users || 0}</div><div class="label">Pro Users</div></div>
+            <div class="stat-card"><div class="value">${data.enterprise_users || 0}</div><div class="label">Enterprise</div></div>
+            <div class="stat-card"><div class="value">${data.pending_deposits || 0}</div><div class="label">Pending Deposits</div></div>
+            <div class="stat-card"><div class="value">৳${data.total_revenue_bdt || 0}</div><div class="label">Total Revenue</div></div>
+            <div class="stat-card"><div class="value">${data.agent_runs_today || 0}</div><div class="label">Agent Runs Today</div></div>
+        `;
+    }
+
+    // Deposits
+    async function loadDeposits(status = 'pending', btn) {
+        if (btn) {
+            btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        const data = await apiFetch(`/admin/deposits?status=${status}`);
+        const tbody = document.getElementById('depositsBody');
+        tbody.innerHTML = (data.deposits || []).map(d => `
+            <tr>
+                <td>${d.username || d.user_id}</td>
+                <td>৳${d.amount}</td>
+                <td>${d.trx_id}</td>
+                <td>Tier ${d.target_tier}</td>
+                <td><span class="badge badge-${d.status}">${d.status}</span></td>
+                <td>${(d.created_at || '').slice(0, 16)}</td>
+                <td>
+                    <button class="btn btn-sm" onclick="viewScreenshot('${d.screenshot_path}')">View</button>
+                    ${d.status === 'pending' ? `
+                        <button class="btn btn-sm btn-approve" onclick="approveDeposit(${d.id})">Approve</button>
+                        <button class="btn btn-sm btn-reject" onclick="rejectDeposit(${d.id})">Reject</button>
+                    ` : ''}
+                </td>
+            </tr>
+        `).join('') || '<tr><td colspan="7" style="text-align:center;color:#666">No deposits</td></tr>';
+    }
+
+    function viewScreenshot(filename) {
+        document.getElementById('screenshotImg').src = `/api/admin/deposit/screenshot/${filename}`;
+        document.getElementById('screenshotModal').classList.add('show');
+    }
+
+    async function approveDeposit(id) {
+        const note = prompt('Admin note (optional):') || '';
+        await apiFetch('/admin/deposits/approve', { method: 'POST', body: { deposit_id: id, admin_note: note } });
+        loadDeposits('pending');
+        loadDashboard();
+    }
+
+    async function rejectDeposit(id) {
+        const note = prompt('Rejection reason:') || 'Rejected by admin';
+        await apiFetch('/admin/deposits/reject', { method: 'POST', body: { deposit_id: id, admin_note: note } });
+        loadDeposits('pending');
+    }
+
+    // Users
+    async function searchUsers(query) {
+        const data = await apiFetch(`/admin/users?search=${encodeURIComponent(query)}`);
+        renderUsers(data.users || []);
+    }
+
+    async function loadUsers() {
+        const data = await apiFetch('/admin/users');
+        renderUsers(data.users || []);
+    }
+
+    function renderUsers(users) {
+        const tierNames = { 1: 'Free', 2: 'Pro', 3: 'Enterprise' };
+        document.getElementById('usersBody').innerHTML = users.map(u => `
+            <tr>
+                <td>${u.id}</td>
+                <td>${u.username}</td>
+                <td>${u.email}</td>
+                <td>
+                    <select onchange="changeTier(${u.id}, this.value)" style="background:#0a0a1a;color:white;border:1px solid #333;padding:4px 8px;border-radius:4px">
+                        ${[1,2,3].map(t => `<option value="${t}" ${u.tier===t?'selected':''}>${tierNames[t]}</option>`).join('')}
+                    </select>
+                </td>
+                <td>${u.is_banned ? '<span class="badge badge-rejected">Banned</span>' : '<span class="badge badge-approved">Active</span>'}</td>
+                <td>
+                    <button class="btn btn-sm ${u.is_banned ? 'btn-approve' : 'btn-reject'}" onclick="toggleBan(${u.id}, ${!u.is_banned})">
+                        ${u.is_banned ? 'Unban' : 'Ban'}
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function changeTier(userId, tier) {
+        await apiFetch('/admin/users/tier', { method: 'POST', body: { user_id: userId, tier: parseInt(tier) } });
+    }
+
+    async function toggleBan(userId, ban) {
+        await apiFetch('/admin/users/ban', { method: 'POST', body: { user_id: userId, ban } });
+        loadUsers();
+    }
+
+    // Solve Logs
+    async function loadSolveLogs() {
+        const wsId = document.getElementById('workspaceFilter').value;
+        const url = wsId ? `/admin/solve-logs?workspace_id=${wsId}` : '/admin/solve-logs';
+        try {
+            const data = await apiFetch(url.replace('/admin/', '/worker/admin/'));
+            // fallback: try worker proxy if admin route not available
+        } catch(e) {}
+    }
+
+    // Settings
+    async function loadSettings() {
+        try {
+            const data = await apiFetch('/admin/settings');
+            document.getElementById('settingsContent').innerHTML = `
+                <div style="background:#1a1a2e;padding:24px;border-radius:12px">
+                    <p><strong>bKash Number:</strong> ${data.bkash_number}</p>
+                    <p><strong>Pro Amount:</strong> ৳${data.pro_amount}</p>
+                    <p><strong>Enterprise Amount:</strong> ৳${data.enterprise_amount}</p>
+                    <p><strong>Free AI Prompts/Day:</strong> ${data.free_ai_prompts_daily}</p>
+                    <p><strong>Free APK Builds/Day:</strong> ${data.free_apk_builds_daily}</p>
+                    <p><strong>Groq Model:</strong> ${data.groq_model || 'N/A'}</p>
+                    <p><strong>Groq Key 1:</strong> ${data.groq_key_1_set ? 'Set' : 'Not Set'}</p>
+                    <p><strong>Groq Key 2:</strong> ${data.groq_key_2_set ? 'Set' : 'Not Set'}</p>
+                </div>
+            `;
+        } catch(e) {
+            document.getElementById('settingsContent').innerHTML = '<p style="color:#888">Settings not available (worker offline?)</p>';
+        }
+    }
+
+    // Init
+    loadDashboard();
+    loadDeposits();
+    loadUsers();
+    loadSettings();
+    </script>
+</body>
+</html>

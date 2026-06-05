@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YubiLab — bKash Payment</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
+        .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+        h1 { text-align: center; color: #e91e63; margin-bottom: 8px; font-size: 28px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 32px; }
+        .bkash-box { background: #1a1a2e; border-radius: 16px; padding: 32px; border: 1px solid #e91e63; }
+        .bkash-number { text-align: center; font-size: 32px; color: #e91e63; font-weight: bold;
+                        padding: 20px; background: #2a1a2e; border-radius: 12px; margin: 16px 0;
+                        letter-spacing: 3px; }
+        .steps { margin: 24px 0; }
+        .step { display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-start; }
+        .step-num { background: #e91e63; color: white; width: 28px; height: 28px; border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center; font-size: 14px;
+                    font-weight: bold; flex-shrink: 0; }
+        .step-text { color: #ccc; line-height: 1.6; }
+        .tier-select { display: flex; gap: 12px; margin: 24px 0; }
+        .tier-card { flex: 1; padding: 20px; border-radius: 12px; border: 2px solid #333;
+                     text-align: center; cursor: pointer; transition: all 0.2s; }
+        .tier-card.selected { border-color: #e91e63; background: #2a1a2e; }
+        .tier-card h3 { color: #e91e63; font-size: 18px; margin-bottom: 4px; }
+        .tier-card .price { font-size: 24px; font-weight: bold; color: white; }
+        .tier-card .period { color: #888; font-size: 13px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #ccc; font-weight: 500; }
+        .form-group label .required { color: #e91e63; }
+        .form-group input[type="text"] { width: 100%; padding: 14px 16px; background: #0a0a1a;
+                     border: 1px solid #333; border-radius: 10px; color: white; font-size: 16px; }
+        .form-group input[type="text"]:focus { border-color: #e91e63; outline: none; }
+        .upload-area { border: 2px dashed #444; border-radius: 12px; padding: 40px; text-align: center;
+                       cursor: pointer; transition: all 0.2s; }
+        .upload-area:hover { border-color: #e91e63; }
+        .upload-area input { display: none; }
+        .upload-area .icon { font-size: 40px; margin-bottom: 12px; }
+        .upload-area .text { color: #888; }
+        .upload-area .preview { max-width: 200px; margin-top: 12px; border-radius: 8px; }
+        .submit-btn { width: 100%; padding: 16px; background: #e91e63; color: white; border: none;
+                      border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer;
+                      margin-top: 20px; transition: background 0.2s; }
+        .submit-btn:hover { background: #c2185b; }
+        .submit-btn:disabled { background: #555; cursor: not-allowed; }
+        .alert { padding: 16px; border-radius: 10px; margin-top: 16px; }
+        .alert-success { background: #1b5e20; color: #a5d6a7; }
+        .alert-error { background: #b71c1c; color: #ef9a9a; }
+        .back-link { display: block; text-align: center; margin-top: 24px; color: #e91e63;
+                     text-decoration: none; }
+        .my-deposits { margin-top: 32px; }
+        .deposit-item { background: #1a1a2e; border-radius: 10px; padding: 16px; margin: 8px 0;
+                        display: flex; justify-content: space-between; align-items: center; }
+        .deposit-item .status { padding: 4px 12px; border-radius: 20px; font-size: 13px; }
+        .status-pending { background: #e65100; color: white; }
+        .status-approved { background: #2e7d32; color: white; }
+        .status-rejected { background: #c62828; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>bKash Payment</h1>
+        <p class="subtitle">Upgrade your YubiLab plan via bKash</p>
+
+        <div class="bkash-box">
+            <p style="text-align:center; color:#888; margin-bottom:8px;">Send Money to:</p>
+            <div class="bkash-number" id="bkashNumber">01849691859</div>
+
+            <div class="steps">
+                <div class="step"><div class="step-num">1</div><div class="step-text">Open bKash app and select "Send Money"</div></div>
+                <div class="step"><div class="step-num">2</div><div class="step-text">Send to the number above</div></div>
+                <div class="step"><div class="step-num">3</div><div class="step-text">Save the TrxID from the confirmation</div></div>
+                <div class="step"><div class="step-num">4</div><div class="step-text">Take a screenshot of the payment</div></div>
+                <div class="step"><div class="step-num">5</div><div class="step-text">Submit TrxID + Screenshot below</div></div>
+            </div>
+
+            <div class="tier-select">
+                <div class="tier-card selected" onclick="selectTier(2, this)">
+                    <h3>Pro</h3>
+                    <div class="price">৳1,200</div>
+                    <div class="period">/month</div>
+                </div>
+                <div class="tier-card" onclick="selectTier(3, this)">
+                    <h3>Enterprise</h3>
+                    <div class="price">৳5,000</div>
+                    <div class="period">/month</div>
+                </div>
+            </div>
+
+            <form id="depositForm" onsubmit="submitDeposit(event)">
+                <div class="form-group">
+                    <label>bKash TrxID <span class="required">* (mandatory)</span></label>
+                    <input type="text" id="trxId" placeholder="e.g. TXN1234ABCDE" required minlength="5">
+                </div>
+
+                <div class="form-group">
+                    <label>Payment Screenshot <span class="required">* (mandatory)</span></label>
+                    <div class="upload-area" onclick="document.getElementById('screenshotInput').click()">
+                        <input type="file" id="screenshotInput" accept="image/png,image/jpeg,image/webp" onchange="previewImage(this)">
+                        <div class="icon">📸</div>
+                        <div class="text" id="uploadText">Click to upload screenshot</div>
+                        <img class="preview" id="imagePreview" style="display:none">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">Submit Deposit</button>
+            </form>
+
+            <div id="alertBox" style="display:none" class="alert"></div>
+        </div>
+
+        <div class="my-deposits" id="depositsSection">
+            <h2 style="color:#e91e63; margin-bottom: 16px;">My Deposits</h2>
+            <div id="depositsList"></div>
+        </div>
+
+        <a href="/editor" class="back-link">Back to IDE</a>
+    </div>
+
+    <script>
+    let selectedTier = 2;
+    const token = localStorage.getItem('token');
+
+    function selectTier(tier, el) {
+        selectedTier = tier;
+        document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('imagePreview').src = e.target.result;
+                document.getElementById('imagePreview').style.display = 'block';
+                document.getElementById('uploadText').textContent = input.files[0].name;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    async function submitDeposit(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const alertBox = document.getElementById('alertBox');
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+
+        const trxId = document.getElementById('trxId').value.trim();
+        const screenshot = document.getElementById('screenshotInput').files[0];
+
+        if (!trxId || trxId.length < 5) {
+            showAlert('TrxID is required (min 5 chars)', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Submit Deposit';
+            return;
+        }
+        if (!screenshot) {
+            showAlert('Screenshot is required', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Submit Deposit';
+            return;
+        }
+
+        const amount = selectedTier === 2 ? 1200 : 5000;
+        const formData = new FormData();
+        formData.append('trx_id', trxId);
+        formData.append('amount', amount);
+        formData.append('target_tier', selectedTier);
+        formData.append('screenshot', screenshot);
+
+        try {
+            const resp = await fetch('/api/deposits/submit', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            const data = await resp.json();
+            if (resp.ok) {
+                showAlert(data.message || 'Deposit submitted!', 'success');
+                document.getElementById('depositForm').reset();
+                document.getElementById('imagePreview').style.display = 'none';
+                document.getElementById('uploadText').textContent = 'Click to upload screenshot';
+                loadDeposits();
+            } else {
+                showAlert(data.error || 'Submission failed', 'error');
+            }
+        } catch (err) {
+            showAlert('Network error', 'error');
+        }
+
+        btn.disabled = false;
+        btn.textContent = 'Submit Deposit';
+    }
+
+    function showAlert(msg, type) {
+        const box = document.getElementById('alertBox');
+        box.style.display = 'block';
+        box.className = `alert alert-${type}`;
+        box.textContent = msg;
+        setTimeout(() => box.style.display = 'none', 5000);
+    }
+
+    async function loadDeposits() {
+        try {
+            const resp = await fetch('/api/deposits/my', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await resp.json();
+            const list = document.getElementById('depositsList');
+            if (!data.deposits || !data.deposits.length) {
+                list.innerHTML = '<p style="color:#666">No deposits yet</p>';
+                return;
+            }
+            list.innerHTML = data.deposits.map(d => `
+                <div class="deposit-item">
+                    <div>
+                        <strong>TrxID: ${d.trx_id}</strong><br>
+                        <small style="color:#888">৳${d.amount} — ${d.created_at}</small>
+                    </div>
+                    <span class="status status-${d.status}">${d.status}</span>
+                </div>
+            `).join('');
+        } catch (e) {}
+    }
+
+    // Load bKash info from API
+    fetch('/api/deposits/bkash-info')
+        .then(r => r.json())
+        .then(info => {
+            document.getElementById('bkashNumber').textContent = info.number || '01849691859';
+        }).catch(() => {});
+
+    if (token) loadDeposits();
+    </script>
+</body>
+</html>

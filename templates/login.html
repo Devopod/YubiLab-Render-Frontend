@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YubiLab - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #1e1e1e; --bg-secondary: #252526; --bg-tertiary: #2d2d2d;
+            --border-color: #3e3e42; --text-primary: #ccc; --text-secondary: #969696;
+            --accent-blue: #0078d4; --accent-red: #f44747;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        .auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
+        .auth-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 40px; width: 420px; max-width: 90vw; }
+        .auth-card h1 { text-align: center; margin-bottom: 8px; color: var(--accent-blue); font-size: 24px; }
+        .auth-card .subtitle { text-align: center; color: var(--text-secondary); margin-bottom: 32px; font-size: 14px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--text-secondary); }
+        .form-group input { width: 100%; padding: 10px 12px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 6px; font-size: 14px; color: var(--text-primary); outline: none; }
+        .form-group input:focus { border-color: var(--accent-blue); }
+        .btn-primary { background: var(--accent-blue); color: white; padding: 12px; border-radius: 6px; font-size: 15px; width: 100%; border: none; cursor: pointer; font-weight: 500; }
+        .btn-primary:hover { background: #1a8fe8; }
+        .auth-link { text-align: center; margin-top: 16px; font-size: 13px; color: var(--text-secondary); }
+        .auth-link a { color: var(--accent-blue); text-decoration: none; }
+        .auth-link a:hover { text-decoration: underline; }
+        .error-msg { color: var(--accent-red); font-size: 13px; margin-top: 8px; text-align: center; display: none; }
+        .logo-row { text-align: center; margin-bottom: 20px; font-size: 14px; color: var(--accent-blue); }
+        .logo-row i { font-size: 32px; margin-bottom: 8px; display: block; }
+    </style>
+</head>
+<body class="auth-page">
+    <div class="auth-card">
+        <div class="logo-row">
+            <i class="fas fa-robot"></i>
+            <strong>YubiLab AI Agent</strong>
+        </div>
+        <h1>Welcome Back</h1>
+        <p class="subtitle">Login to your AI-powered development environment</p>
+
+        <div class="error-msg" id="error-msg"></div>
+
+        <form id="login-form" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="Enter username" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter password" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+
+        <div class="auth-link">
+            Don't have an account? <a href="/register">Sign up</a>
+        </div>
+    </div>
+
+    <script>
+    async function handleLogin(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const errorEl = document.getElementById('error-msg');
+
+        try {
+            const resp = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
+            });
+            const data = await resp.json();
+
+            if (data.success) {
+                window.location.href = '/ide';
+            } else {
+                errorEl.textContent = data.error || 'Login failed';
+                errorEl.style.display = 'block';
+            }
+        } catch (e) {
+            errorEl.textContent = 'Connection error. Please try again.';
+            errorEl.style.display = 'block';
+        }
+    }
+    </script>
+</body>
+</html>
